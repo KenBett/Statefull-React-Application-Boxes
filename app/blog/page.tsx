@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Page() {
   const [colors, setColors] = useState(Array(9).fill("bg-neutral-800"));
   const [blueIndices, setBlueIndices] = useState<number[]>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const [time, setTime] = useState(0);
-  const [timestamps, setTimestamps] = useState<string[]>(Array(9).fill(""));
+  const [time, setTime] = useState(0); // Tracks the elapsed time
+  const [timestamps, setTimestamps] = useState<string[]>(Array(9).fill(""));// Stops the time stamps formated time
   const [clickOrder, setClickOrder] = useState<number[]>(Array(9).fill(0));
 
   useEffect(() => {
@@ -90,37 +91,69 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-neutral-700 p-4 overflow-y-auto">
-      <div className="mb-4 text-xl sm:text-2xl font-bold text-white">
+    <div className="flex flex-col items-center min-h-screen bg-cyan-500 p-4 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-4 text-xl sm:text-2xl font-bold text-white"
+      >
         {formatTime(time)}
-      </div>
+      </motion.div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-xs sm:max-w-md">
         {colors.map((color, index) => (
-          <div
+          <motion.div
             key={index}
-            className={`w-full aspect-square ${color} rounded-lg flex items-center justify-center relative`}
-            onClick={() => handleClick(index)}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            {clickOrder[index] > 0 && (
-              <div className="absolute top-1 right-1 w-6 h-6 bg-neutral-700 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">{clickOrder[index]}</span>
-              </div>
-            )}
-            <span className="font-bold text-black text-xl">
-              {timestamps[index]}
-            </span>
-          </div>
+            <motion.div
+              className={`w-full aspect-square ${color} rounded-lg flex items-center justify-center relative`}
+              onClick={() => handleClick(index)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <AnimatePresence>
+                {clickOrder[index] > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    className="absolute top-1 right-1 w-6 h-6 bg-neutral-700 rounded-full flex items-center justify-center"
+                  >
+                    <span className="text-white text-xs font-bold">{clickOrder[index]}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="font-bold text-black text-xl"
+              >
+                {timestamps[index]}
+              </motion.span>
+            </motion.div>
+          </motion.div>
         ))}
       </div>
-      <div className="text-white mt-4 font-semibold text-lg sm:text-2xl text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="text-white mt-4 font-semibold text-lg sm:text-2xl text-center"
+      >
         {formatBlueIndicesText()}
-      </div>
-      <button
+      </motion.div>
+      <motion.button
         onClick={handleReset}
         className="mt-4 px-4 py-2 bg-white text-black rounded-lg font-semibold text-sm sm:text-base"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
         Reset
-      </button>
+      </motion.button>
     </div>
   );
 }
